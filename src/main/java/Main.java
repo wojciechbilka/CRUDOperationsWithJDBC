@@ -9,6 +9,7 @@ public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         initialize();
+        System.out.println("\n=======================Start Table=========================\n");
         getEmployeeTable();
         Employee employee1 = new Employee("John",
                 "Vinna",
@@ -19,8 +20,11 @@ public class Main {
                 LocalDate.of(2015, 12, 31),
                 "Medium");
         insertEmployee(employee1);
+        System.out.println("\n=======================After Inserting=========================\n");
         getEmployeeTable();
-
+        updateEmployee(employee1, 6);
+        System.out.println("\n=======================After Updating=========================\n");
+        getEmployeeTable();
 
     }
 
@@ -54,6 +58,24 @@ public class Main {
             statement.execute();
         }
     }
+
+    private static void updateEmployee(Employee employee, int id) throws SQLException{
+        try(Connection connection = DriverManager.getConnection(URL)) {
+            PreparedStatement statement = connection.prepareStatement("update Employee set " +
+                    "LastName =" + "'" + employee.getLastName() + "'," +
+                    "FirstName =" + "'" + employee.getFirstName() + "'," +
+                    "Address =" + "'" + employee.getAddress() + "'," +
+                    "City =" + "'" + employee.getCity() + "'," +
+                    "Salary =" + employee.getSalary() + "," +
+                    "Age =" + employee.getAge() + "," +
+                    "StartJobDate =" + "'" + employee.getStartJobDate().toString() + "'," +
+                    "Benefit =" + "'" + employee.getBenefit() +"'" +
+                    "WHERE ID =" + id + ";");
+            statement.execute();
+        }
+    }
+
+
 
 
 
