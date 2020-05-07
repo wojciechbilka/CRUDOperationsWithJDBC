@@ -19,11 +19,17 @@ public class Main {
                 22,
                 LocalDate.of(2015, 12, 31),
                 "Medium");
+
         insertEmployee(employee1);
         System.out.println("\n=======================After Inserting=========================\n");
         getEmployeeTable();
+
         updateEmployee(employee1, 6);
         System.out.println("\n=======================After Updating=========================\n");
+        getEmployeeTable();
+
+        deleteEmployee(13);
+        System.out.println("\n=======================After Deleting=========================\n");
         getEmployeeTable();
 
     }
@@ -75,8 +81,11 @@ public class Main {
         }
     }
 
-
-
-
+    private static void deleteEmployee(int id) throws SQLException{
+        try(Connection connection = DriverManager.getConnection(URL)) {
+            PreparedStatement statement = connection.prepareStatement("delete from Employee where ID = " + id + ";");
+            statement.execute();
+        }
+    }
 
 }
