@@ -27,7 +27,7 @@ public class Main {
         System.out.println("\n=======================After Inserting=========================\n");
         employeeDAO.getEmployeeTable();
 
-        employeeDAO.updateEmployee(employee1, 6);
+        employeeDAO.updateEmployee(employee1, 5);
         System.out.println("\n=======================After Updating=========================\n");
         employeeDAO.getEmployeeTable();
 

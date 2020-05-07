@@ -19,8 +19,8 @@ public class EmployeeDAO {
 
     public void getEmployeeTable() throws SQLException {
         try(Connection connection = DriverManager.getConnection(URL)) {
-            PreparedStatement selectStatement = connection.prepareStatement("select * from Employee");
-            ResultSet rs = selectStatement.executeQuery();
+            PreparedStatement statement = connection.prepareStatement("select * from Employee");
+            ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 System.out.println("ID:" + rs.getInt("id") +
                         " Name:" + rs.getString("FirstName") +
@@ -32,16 +32,13 @@ public class EmployeeDAO {
     public int getMaxId() throws SQLException{
         int i = 0;
         try(Connection connection = DriverManager.getConnection(URL)) {
-            PreparedStatement selectStatement = connection.prepareStatement("select * from Employee");
-            ResultSet rs = selectStatement.executeQuery();
-            while (rs.next()) {
-                int temp;
-                if((temp = rs.getInt("id")) > i) {
-                    i = temp;
-                }
+            PreparedStatement statement = connection.prepareStatement("select max(ID) as 'maximum' from Employee");
+            ResultSet rs = statement.executeQuery();
+            while(rs.next()) {
+                i = rs.getInt("maximum");
             }
+            return i;
         }
-        return i;
     }
 
     public List<Employee> getEmployeeList() throws SQLException{
@@ -67,15 +64,16 @@ public class EmployeeDAO {
 
     public void insertEmployee(Employee employee) throws SQLException{
         try(Connection connection = DriverManager.getConnection(URL)) {
-            PreparedStatement statement = connection.prepareStatement("insert into Employee values(" +
-                    "'" + employee.getLastName() + "'," +
-                    "'" + employee.getFirstName() + "'," +
-                    "'" + employee.getAddress() + "'," +
-                    "'" + employee.getCity() + "'," +
-                    employee.getSalary() + "," +
-                    employee.getAge() + "," +
-                    "'" + employee.getStartJobDate().toString() + "'," +
-                    "'" + employee.getBenefit() +"')");
+            System.out.println(employee.getStartJobDate().toString());
+            PreparedStatement statement = connection.prepareStatement("insert into Employee values(?,?,?,?,?,?,?,?)");
+            statement.setString(1, "'" + employee.getLastName() + "'");
+            statement.setString(2, "'" + employee.getFirstName() + "'");
+            statement.setString(3, "'" + employee.getAddress() + "'");
+            statement.setString(4, "'" + employee.getCity() + "'");
+            statement.setDouble(5, employee.getSalary());
+            statement.setInt(6, employee.getAge());
+            statement.setDate(7, Date.valueOf(employee.getStartJobDate()));
+            statement.setString(8, "'" + employee.getBenefit() + "'");
             statement.execute();
         }
     }
@@ -83,21 +81,36 @@ public class EmployeeDAO {
     public void updateEmployee(Employee employee, int id) throws SQLException{
         try(Connection connection = DriverManager.getConnection(URL)) {
             PreparedStatement statement = connection.prepareStatement("update Employee set " +
-                    "LastName =" + "'" + employee.getLastName() + "'," +
-                    "FirstName =" + "'" + employee.getFirstName() + "'," +
-                    "Address =" + "'" + employee.getAddress() + "'," +
-                    "City =" + "'" + employee.getCity() + "'," +
-                    "Salary =" + employee.getSalary() + "," +
-                    "Age =" + employee.getAge() + "," +
-                    "StartJobDate =" + "'" + employee.getStartJobDate().toString() + "'," +
-                    "Benefit =" + "'" + employee.getBenefit() +"'" +
-                    "WHERE ID =" + id + ";");
+                    "LastName =?, FirstName =?, Address =?, City =?, Salary =?, Age =?, StartJobDate =?, Benefit =? WHERE ID =?");
+            statement.setString(1, "'" + employee.getLastName() + "'");
+            statement.setString(2, "'" + employee.getFirstName() + "'");
+            statement.setString(3, "'" + employee.getAddress() + "'");
+            statement.setString(4, "'" + employee.getCity() + "'");
+            statement.setDouble(5, employee.getSalary());
+            statement.setInt(6, employee.getAge());
+            statement.setDate(7, Date.valueOf(employee.getStartJobDate()));
+            statement.setString(8, "'" + employee.getBenefit() + "'");
+            statement.setInt(9, id);
+            statement.execute();
+        }
+    }
+
+    private void deleteRow(String tableName, String idName, int id) throws SQLException {
+        try(Connection connection = DriverManager.getConnection(URL)) {
+            PreparedStatement statement = connection.prepareStatement("delete from ? where ? = ?");
+            statement.setString(1, tableName);
+            statement.setString(2, idName);
+            statement.setInt(3, id);
             statement.execute();
         }
     }
 
     public void deleteEmployee(int id) throws SQLException{
         try(Connection connection = DriverManager.getConnection(URL)) {
+
+            PreparedStatement statementSelectCars = connection.prepareStatement("select CarID from EmployeeCarRelationFK where EmployeeID = " + id);
+            statementSelectCars.executeQuery();
+            deleteRow("EmployeeCarRelationFK", "EmployeeID", id);
             PreparedStatement statement = connection.prepareStatement("delete from Employee where ID = " + id + ";");
             statement.execute();
         }
