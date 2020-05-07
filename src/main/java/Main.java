@@ -1,4 +1,7 @@
+import SimpleService.Employee;
+
 import java.sql.*;
+import java.time.LocalDate;
 
 public class Main {
 
@@ -6,6 +9,16 @@ public class Main {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         initialize();
+        getEmployeeTable();
+        Employee employee1 = new Employee("John",
+                "Vinna",
+                "Jerozolimskie 223",
+                "Warszawa",
+                2300.0,
+                22,
+                LocalDate.of(2015, 12, 31),
+                "Medium");
+        insertEmployee(employee1);
         getEmployeeTable();
 
 
@@ -24,6 +37,21 @@ public class Main {
                         " Name:" + rs.getString("FirstName") +
                         " Surname:" + rs.getString("LastName"));
             }
+        }
+    }
+
+    private static void insertEmployee(Employee employee) throws SQLException{
+        try(Connection connection = DriverManager.getConnection(URL)) {
+            PreparedStatement statement = connection.prepareStatement("insert into Employee values(" +
+                    "'" + employee.getLastName() + "'," +
+                    "'" + employee.getFirstName() + "'," +
+                    "'" + employee.getAddress() + "'," +
+                    "'" + employee.getCity() + "'," +
+                    employee.getSalary() + "," +
+                    employee.getAge() + "," +
+                    "'" + employee.getStartJobDate().toString() + "'," +
+                    "'" + employee.getBenefit() +"')");
+            statement.execute();
         }
     }
 
