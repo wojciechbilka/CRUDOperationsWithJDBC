@@ -2,6 +2,8 @@ import SimpleService.Employee;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -42,12 +44,33 @@ public class Main {
         try(Connection connection = DriverManager.getConnection(URL)) {
             PreparedStatement selectStatement = connection.prepareStatement("select * from Employee");
             ResultSet rs = selectStatement.executeQuery();
-            while (rs.next()) { // will traverse through all rows
+            while (rs.next()) {
                 System.out.println("ID:" + rs.getInt("id") +
                         " Name:" + rs.getString("FirstName") +
                         " Surname:" + rs.getString("LastName"));
             }
         }
+    }
+
+    private static List<Employee> getEmployeeList() throws SQLException{
+        List<Employee> employees = new ArrayList<>();
+        try(Connection connection = DriverManager.getConnection(URL)) {
+            PreparedStatement selectStatement = connection.prepareStatement("select * from Employee");
+            ResultSet rs = selectStatement.executeQuery();
+            while (rs.next()) {
+                Employee tempEmployee = new Employee(
+                        rs.getString("FirstName"),
+                        rs.getString("LastName"),
+                        rs.getString("Address"),
+                        rs.getString("City"),
+                        rs.getDouble("Salary"),
+                        rs.getInt("Age"),
+                        rs.getDate("StartJobDate").toLocalDate(),
+                        rs.getString("Benefit"));
+                employees.add(tempEmployee);
+            }
+        }
+        return employees;
     }
 
     private static void insertEmployee(Employee employee) throws SQLException{
